@@ -2,9 +2,14 @@ package com.example.bookmark;
 
 import java.util.ArrayList;
 
+/**
+ * BookInfo is a model class that represents the details of a book.
+ * It contains various attributes such as title, author, publisher, description,
+ * and links to preview, buy, or get more information about the book.
+ */
 public class BookInfo {
 
-    // Book Detail Variables
+    // Book detail variables
     private String title;
     private String subtitle;
     private ArrayList<String> authors;
@@ -17,7 +22,38 @@ public class BookInfo {
     private String infoLink;
     private String buyLink;
 
-    // Getter and setter methods
+    /**
+     * Constructor for the BookInfo class that initializes all book-related details.
+     *
+     * @param title         The title of the book.
+     * @param subtitle      The subtitle of the book (if any).
+     * @param authors       A list of authors who wrote the book.
+     * @param publisher     The name of the publisher.
+     * @param publishedDate The date the book was published.
+     * @param description   A brief description of the book.
+     * @param pageCount     The number of pages in the book.
+     * @param thumbnail     A URL link to the book's thumbnail image.
+     * @param previewLink   A URL link to preview the book.
+     * @param infoLink      A URL link for additional book details.
+     * @param buyLink       A URL link to purchase the book.
+     */
+    public BookInfo(String title, String subtitle, ArrayList<String> authors, String publisher,
+                    String publishedDate, String description, int pageCount, String thumbnail,
+                    String previewLink, String infoLink, String buyLink) {
+        this.title = title;
+        this.subtitle = subtitle;
+        this.authors = authors;
+        this.publisher = publisher;
+        this.publishedDate = publishedDate;
+        this.description = description;
+        this.pageCount = pageCount;
+        this.thumbnail = thumbnail;
+        this.previewLink = previewLink;
+        this.infoLink = infoLink;
+        this.buyLink = buyLink;
+    }
+
+    /**Book Details Getter and Setter Methods*/
     public String getTitle() {
         return title;
     }
@@ -105,21 +141,5 @@ public class BookInfo {
     public void setBuyLink(String buyLink) {
         this.buyLink = buyLink;
     }
-
-    // BookInfo Constructor Class
-    public BookInfo(String title, String subtitle, ArrayList<String> authors, String publisher,
-                    String publishedDate, String description, int pageCount, String thumbnail,
-                    String previewLink, String infoLink, String buyLink) {
-        this.title = title;
-        this.subtitle = subtitle;
-        this.authors = authors;
-        this.publisher = publisher;
-        this.publishedDate = publishedDate;
-        this.description = description;
-        this.pageCount = pageCount;
-        this.thumbnail = thumbnail;
-        this.previewLink = previewLink;
-        this.infoLink = infoLink;
-        this.buyLink = buyLink;
-    }
 }
+

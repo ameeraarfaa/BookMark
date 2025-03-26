@@ -2,6 +2,7 @@ package com.example.bookmark;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,46 +17,75 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+/**
+ * BookAdapter is a RecyclerView Adapter class that handles the display of book information
+ * in a RecyclerView. It binds book data from an ArrayList<BookInfo> to the corresponding views.
+ * It also handles item click events, launching the BookDetails activity with detailed book data.
+ */
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder> {
 
-    // creating variables for arraylist and context.
-    private ArrayList<BookInfo> bookInfoArrayList;
-    private Context mcontext;
+    private ArrayList<BookInfo> bookInfoArrayList;  // List of books to be displayed
+    private Context mcontext;  // Context for handling UI-related operations
 
-    // creating constructor for array list and context.
+    /**
+     * Constructor to initialize BookAdapter with a list of books and context.
+     * @param bookInfoArrayList List of BookInfo objects to be displayed.
+     * @param mcontext Context of the activity or fragment where the adapter is used.
+     */
     public BookAdapter(ArrayList<BookInfo> bookInfoArrayList, Context mcontext) {
         this.bookInfoArrayList = bookInfoArrayList;
         this.mcontext = mcontext;
     }
 
+    /**
+     * Creates and returns a new ViewHolder by inflating the item layout for the RecyclerView.
+     * @param parent The parent ViewGroup into which the new view will be added.
+     * @param viewType The view type of the new View.
+     * @return A new instance of BookViewHolder.
+     */
     @NonNull
     @Override
     public BookViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // inflating our layout for item of recycler view item.
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.book_rv_item, parent, false);
         return new BookViewHolder(view);
     }
 
+    /**
+     * Binds data to the views inside the ViewHolder at the given position.
+     * This method sets the book details (title, publisher, page count, and date) to the respective UI components.
+     * It also loads the book's thumbnail image using Picasso and sets up a click listener for each item.
+     * @param holder The ViewHolder that should be updated with new data.
+     * @param position The position of the item in the dataset.
+     */
     @Override
     public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
-
-        // inside on bind view holder method we are
-        // setting our data to each UI component.
         BookInfo bookInfo = bookInfoArrayList.get(position);
+
+        // Set book details to respective TextViews
         holder.nameTV.setText(bookInfo.getTitle());
         holder.publisherTV.setText(bookInfo.getPublisher());
         holder.pageCountTV.setText("No of Pages : " + bookInfo.getPageCount());
         holder.dateTV.setText(bookInfo.getPublishedDate());
 
-        // below line is use to set image from URL in our image view.
-        Picasso.get().load(bookInfo.getThumbnail()).into(holder.bookIV);
+        // Print thumbnail URL to Logcat for debugging
+        Log.d("BookAdapter", "Thumbnail URL: " + bookInfo.getThumbnail());
 
-        // below line is use to add on click listener for our item of recycler view.
+        // Load book thumbnail using Picasso with error handling
+        if (bookInfo.getThumbnail() != null && !bookInfo.getThumbnail().isEmpty()) {
+            Picasso.get()
+                    .load(bookInfo.getThumbnail())
+                    .placeholder(R.drawable.placeholder_image)
+                    .error(R.drawable.error_image) // Image to show if loading fails
+                    .into(holder.bookIV);
+        } else {
+            // Set placeholder image if URL is invalid
+            holder.bookIV.setImageResource(R.drawable.placeholder_image);
+        }
+
+        // Set click listener to open BookDetails activity with book data
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // inside on click listener method we are calling a new activity
-                // and passing all the data of that item in next intent.
                 Intent i = new Intent(mcontext, BookDetails.class);
                 i.putExtra("title", bookInfo.getTitle());
                 i.putExtra("subtitle", bookInfo.getSubtitle());
@@ -69,26 +99,34 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
                 i.putExtra("infoLink", bookInfo.getInfoLink());
                 i.putExtra("buyLink", bookInfo.getBuyLink());
 
-                // after passing that data we are
-                // starting our new intent.
+                // Start BookDetails activity with the selected book details
                 mcontext.startActivity(i);
             }
         });
     }
 
+
+    /**
+     * Returns the total number of items in the book list.
+     * @return The size of bookInfoArrayList.
+     */
     @Override
     public int getItemCount() {
-        // inside get item count method we
-        // are returning the size of our array list.
         return bookInfoArrayList.size();
     }
 
+    /**
+     * ViewHolder class to hold references to the views for each item in the RecyclerView.
+     * It contains TextViews for book details and an ImageView for the book thumbnail.
+     */
     public class BookViewHolder extends RecyclerView.ViewHolder {
-        // below line is use to initialize
-        // our text view and image views.
         TextView nameTV, publisherTV, pageCountTV, dateTV;
         ImageView bookIV;
 
+        /**
+         * Constructor to initialize the ViewHolder with item views.
+         * @param itemView The view representing a single item in the RecyclerView.
+         */
         public BookViewHolder(View itemView) {
             super(itemView);
             nameTV = itemView.findViewById(R.id.idTVBookTitle);
