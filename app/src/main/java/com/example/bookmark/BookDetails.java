@@ -1,6 +1,7 @@
 package com.example.bookmark;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ public class BookDetails extends AppCompatActivity {
 
     // UI components
     TextView titleTV, subtitleTV, publisherTV, descTV, pageTV, publishDateTV;
-    Button previewBtn, buyBtn;
+    Button previewBtn, buyBtn, markBtn;
     private ImageView bookIV;
 
     /**
@@ -52,6 +54,7 @@ public class BookDetails extends AppCompatActivity {
         publishDateTV = findViewById(R.id.idTVPublishDate);
         previewBtn = findViewById(R.id.idBtnPreview);
         buyBtn = findViewById(R.id.idBtnBuy);
+        markBtn = findViewById(R.id.idBtnMark); // Initialize the Mark button
         bookIV = findViewById(R.id.idIVbook);
 
         // Retrieving book data from Intent extras
@@ -77,14 +80,22 @@ public class BookDetails extends AppCompatActivity {
         // Load the book's thumbnail image using Picasso
         Picasso.get().load(thumbnail).into(bookIV);
 
-        // Setting click listener for preview button
-        previewBtn.setOnClickListener(new View.OnClickListener() {
+        // Set Mark button's click listener
+        markBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isBookMarked(title)) {
+                    unmarkBook(title);
+                    markBtn.setText("Mark as Interesting");
+                } else {
+                    markBook(new BookInfo(title, subtitle, authors, publisher, publishedDate, description, pageCount, thumbnail, previewLink, infoLink, buyLink));
+                    markBtn.setText("Unmark");
+                }
+            }
+        });
 
-            /**
-             * Handles the click event for the Preview button. If a preview link is available,
-             * it opens the link in a web browser. Otherwise, it shows a toast message.
-             * @param v The view that was clicked.
-             */
+        // Set Preview button's click listener
+        previewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (previewLink.isEmpty()) {
@@ -97,13 +108,8 @@ public class BookDetails extends AppCompatActivity {
             }
         });
 
-        // Setting click listener for buy button
+        // Set Buy button's click listener
         buyBtn.setOnClickListener(new View.OnClickListener() {
-            /**
-             * Handles the click event for the Buy button. If a purchase link is available,
-             * it opens the link in a web browser. Otherwise, it shows a toast message.
-             * @param v The view that was clicked.
-             */
             @Override
             public void onClick(View v) {
                 if (buyLink.isEmpty()) {
@@ -115,5 +121,45 @@ public class BookDetails extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        // Set the Mark button text based on whether the book is already marked
+        if (isBookMarked(title)) {
+            markBtn.setText("Unmark");
+        } else {
+            markBtn.setText("Mark as Interesting");
+        }
+    }
+
+    /**
+     * Marks a book by saving it to SharedPreferences.
+     * @param book The book to be marked.
+     */
+    private void markBook(BookInfo book) {
+        SharedPreferences preferences = getSharedPreferences("bookmarks", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        String json = new Gson().toJson(book); // Convert BookInfo object to JSON
+        editor.putString(book.getTitle(), json); // Store the book using title as key
+        editor.apply();
+    }
+
+    /**
+     * Unmarks a book by removing it from SharedPreferences.
+     * @param title The title of the book to be unmarked.
+     */
+    private void unmarkBook(String title) {
+        SharedPreferences preferences = getSharedPreferences("bookmarks", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove(title); // Remove the book using title as key
+        editor.apply();
+    }
+
+    /**
+     * Checks if a book is marked (exists in SharedPreferences).
+     * @param title The title of the book to check.
+     * @return true if the book is marked, false otherwise.
+     */
+    private boolean isBookMarked(String title) {
+        SharedPreferences preferences = getSharedPreferences("bookmarks", MODE_PRIVATE);
+        return preferences.contains(title); // Check if the book exists in SharedPreferences
     }
 }

@@ -13,8 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.bookmark.BookInfo;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -54,7 +52,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     /**
      * Binds data to the views inside the ViewHolder at the given position.
      * This method sets the book details (title, publisher, page count, and date) to the respective UI components.
-     * It also loads the book's thumbnail image using Picasso and sets up a click listener for each item.
+     * It also loads the book's thumbnail image using Glide and sets up a click listener for each item.
      * @param holder The ViewHolder that should be updated with new data.
      * @param position The position of the item in the dataset.
      */
@@ -71,18 +69,42 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         // Print thumbnail URL to Logcat for debugging
         Log.d("BookAdapter", "Thumbnail URL: " + bookInfo.getThumbnail());
 
-        // Load book thumbnail using Picasso with error handling
+        // Load book thumbnail using Glide with error handling
         if (bookInfo.getThumbnail() != null && !bookInfo.getThumbnail().isEmpty()) {
             Glide.with(holder.bookIV.getContext())
                     .load(bookInfo.getThumbnail())
                     .placeholder(R.drawable.placeholder_image)  // Placeholder image while loading
                     .error(R.drawable.error_image)             // Image to show if loading fails
                     .into(holder.bookIV);
-
         } else {
             // Set placeholder image if URL is invalid
             holder.bookIV.setImageResource(R.drawable.placeholder_image);
         }
+
+        // Handle "Mark" icon (ImageView)
+        ImageView markIcon = holder.itemView.findViewById(R.id.idMarkIcon);
+
+        // Check if the book is already marked
+        if (isBookMarked(bookInfo.getTitle())) {
+            markIcon.setImageResource(R.drawable.ic_bookmark_filled);  // Book is marked
+        } else {
+            markIcon.setImageResource(R.drawable.ic_bookmark_border);  // Book is not marked
+        }
+
+        // Set click listener to toggle marking/unmarking the book
+        markIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isBookMarked(bookInfo.getTitle())) {
+                    unmarkBook(bookInfo.getTitle());
+                    markIcon.setImageResource(R.drawable.ic_bookmark_border);  // Update icon to unmarked state
+                } else {
+                    markBook(bookInfo);
+                    markIcon.setImageResource(R.drawable.ic_bookmark_filled);  // Update icon to marked state
+                }
+                notifyDataSetChanged(); // Refresh the RecyclerView after marking/unmarking
+            }
+        });
 
         // Set click listener to open BookDetails activity with book data
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -106,7 +128,6 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             }
         });
     }
-
 
     /**
      * Returns the total number of items in the book list.
@@ -137,5 +158,19 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             dateTV = itemView.findViewById(R.id.idTVDate);
             bookIV = itemView.findViewById(R.id.idIVbook);
         }
+    }
+
+    // Placeholder methods for checking and marking books (implement as needed)
+    private boolean isBookMarked(String title) {
+        // Implement logic to check if the book is marked (e.g., using SharedPreferences, database, etc.)
+        return false;  // For now, return false (not marked)
+    }
+
+    private void markBook(BookInfo book) {
+        // Implement logic to mark the book (e.g., using SharedPreferences, database, etc.)
+    }
+
+    private void unmarkBook(String title) {
+        // Implement logic to unmark the book (e.g., using SharedPreferences, database, etc.)
     }
 }
