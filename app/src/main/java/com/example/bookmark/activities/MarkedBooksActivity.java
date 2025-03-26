@@ -3,6 +3,7 @@ package com.example.bookmark.activities;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -10,7 +11,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,9 +41,8 @@ public class MarkedBooksActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerViewMarkedBooks);
         spinnerSort = findViewById(R.id.spinnerSort);
 
-        // Load marked books
+        // Load marked books from SharedPreferences
         markedBooksList = loadMarkedBooks();
-
         if (markedBooksList.isEmpty()) {
             Log.d("BookMarking", "No books to display.");
             Toast.makeText(this, "No marked books to display.", Toast.LENGTH_SHORT).show();
@@ -51,9 +50,9 @@ public class MarkedBooksActivity extends AppCompatActivity {
             Log.d("BookMarking", "Books loaded: " + markedBooksList.size());
         }
 
-        // Use LinearLayoutManager instead of GridLayoutManager for a simple list
+        // Use LinearLayoutManager for a simple vertical list
         markedBooksAdapter = new MarkedBooksAdapter(markedBooksList, this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this)); // Use LinearLayoutManager
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(markedBooksAdapter);
 
         // Set up Spinner for sorting options
@@ -61,7 +60,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
                 R.array.sort_options, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerSort.setAdapter(adapter);
-
         spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -77,6 +75,16 @@ public class MarkedBooksActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload marked books when the activity resumes
+        markedBooksList = loadMarkedBooks();
+        markedBooksAdapter.updateBooks(markedBooksList);
+        markedBooksAdapter.notifyDataSetChanged();
+        Log.d("BookMarking", "onResume - Books loaded: " + markedBooksList.size());
+    }
+
     // Load marked books from SharedPreferences
     private List<BookInfo> loadMarkedBooks() {
         SharedPreferences preferences = getSharedPreferences("MarkedBooksPrefs", MODE_PRIVATE);
@@ -84,11 +92,9 @@ public class MarkedBooksActivity extends AppCompatActivity {
         String json = preferences.getString("markedBooks", "[]");
         Type type = new TypeToken<List<BookInfo>>() {}.getType();
         List<BookInfo> bookList = gson.fromJson(json, type);
-
         if (bookList == null) {
             bookList = new ArrayList<>();
         }
-
         return bookList;
     }
 
@@ -103,7 +109,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
                     }
                 });
                 break;
-
             case 1: // Published Date Descending
                 Collections.sort(markedBooksList, new Comparator<BookInfo>() {
                     @Override
@@ -112,7 +117,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
                     }
                 });
                 break;
-
             case 2: // Author Ascending
                 Collections.sort(markedBooksList, new Comparator<BookInfo>() {
                     @Override
@@ -125,7 +129,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
                     }
                 });
                 break;
-
             case 3: // Author Descending
                 Collections.sort(markedBooksList, new Comparator<BookInfo>() {
                     @Override
@@ -138,7 +141,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
                     }
                 });
                 break;
-
             case 4: // Oldest Marked
                 Collections.sort(markedBooksList, new Comparator<BookInfo>() {
                     @Override
@@ -147,7 +149,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
                     }
                 });
                 break;
-
             case 5: // Latest Marked
                 Collections.sort(markedBooksList, new Comparator<BookInfo>() {
                     @Override
@@ -159,4 +160,3 @@ public class MarkedBooksActivity extends AppCompatActivity {
         }
     }
 }
-
