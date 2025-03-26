@@ -1,5 +1,6 @@
-package com.example.bookmark;
+package com.example.bookmark.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -7,6 +8,7 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +19,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.bookmark.adapters.BookAdapter;
+import com.example.bookmark.models.BookInfo;
+import com.example.bookmark.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,68 +30,63 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-/**
- * MainActivity handles user interactions for searching books using the Google Books API.
- * It fetches book details based on the user's query and displays them in a RecyclerView.
- */
 public class MainActivity extends AppCompatActivity {
 
-    // Declare required variables
     private RequestQueue mRequestQueue;
     private ArrayList<BookInfo> bookInfoArrayList;
     private ProgressBar progressBar;
     private EditText searchEdt;
     private ImageButton searchBtn;
+    private RecyclerView mRecyclerView;
 
-    /**
-     * Called when the activity is first created.
-     * Initializes views and sets up click listeners.
-     * @param savedInstanceState Saved instance state for restoring activity state.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // Ensure layout file is correctly referenced
+        setContentView(R.layout.activity_main);
 
         // Initialize UI components
         progressBar = findViewById(R.id.idLoadingPB);
         searchEdt = findViewById(R.id.idEdtSearchBooks);
         searchBtn = findViewById(R.id.idBtnSearch);
+        mRecyclerView = findViewById(R.id.idRVBooks);
+
+        // Set up RecyclerView layout manager
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+
+        // Set up Bottom Navigation
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.nav_search);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.nav_marked_books) {
+                Intent intent = new Intent(MainActivity.this, MarkedBooksActivity.class);
+                startActivity(intent);
+                overridePendingTransition(0, 0); // Smooth transition
+                return true;
+            }
+            return false;
+        });
 
         // Set up click listener for search button
-        searchBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)  {
-                progressBar.setVisibility(View.VISIBLE);
-                if (searchEdt.getText().toString().isEmpty()) {
-                    searchEdt.setError("Please enter search query");
-                    return;
-                }
-                // Call API to fetch book details
-                getBooksInfo(searchEdt.getText().toString());
+        searchBtn.setOnClickListener(v -> {
+            progressBar.setVisibility(View.VISIBLE);
+            String query = searchEdt.getText().toString().trim();
+            if (query.isEmpty()) {
+                searchEdt.setError("Please enter search query");
+                progressBar.setVisibility(View.GONE);
+            } else {
+                getBooksInfo(query);
             }
         });
     }
 
-    /**
-     * Fetches book information from the Google Books API based on the search query.
-     *
-     * @param query The search term entered by the user.
-     */
     private void getBooksInfo(String query) {
         bookInfoArrayList = new ArrayList<>();
         mRequestQueue = Volley.newRequestQueue(MainActivity.this);
+        mRequestQueue.getCache().clear(); // Ensure fresh data
 
-        // Clear cache to ensure fresh data retrieval
-        mRequestQueue.getCache().clear();
-
-        // Construct the API URL for fetching book details
         String url = "https://www.googleapis.com/books/v1/volumes?q=" + query;
 
-        // Initialize a new request queue
-        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
-
-        // Create a JSON request for book data
         JsonObjectRequest booksObjRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -97,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
                                 JSONObject itemsObj = itemsArray.getJSONObject(i);
                                 JSONObject volumeObj = itemsObj.getJSONObject("volumeInfo");
 
-                                // Extract book details
                                 String title = volumeObj.optString("title");
                                 String subtitle = volumeObj.optString("subtitle");
                                 JSONArray authorsArray = volumeObj.optJSONArray("authors");
@@ -112,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
                                 JSONObject saleInfoObj = itemsObj.optJSONObject("saleInfo");
                                 String buyLink = (saleInfoObj != null) ? saleInfoObj.optString("buyLink") : "";
 
-                                // Convert authors JSON array to ArrayList
                                 ArrayList<String> authorsArrayList = new ArrayList<>();
                                 if (authorsArray != null) {
                                     for (int j = 0; j < authorsArray.length(); j++) {
@@ -120,18 +119,11 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
 
-                                // Create a BookInfo object and add to the list
-                                BookInfo bookInfo = new BookInfo(title, subtitle, authorsArrayList, publisher,
-                                        publishedDate, description, pageCount, thumbnail,
-                                        previewLink, infoLink, buyLink);
-                                bookInfoArrayList.add(bookInfo);
+                                bookInfoArrayList.add(new BookInfo(title, subtitle, authorsArrayList, publisher,
+                                        publishedDate, description, pageCount, thumbnail, previewLink, infoLink, buyLink));
                             }
 
-                            // Set up RecyclerView with book data
-                            RecyclerView mRecyclerView = findViewById(R.id.idRVBooks);
-                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(MainActivity.this,
-                                    RecyclerView.VERTICAL, false);
-                            mRecyclerView.setLayoutManager(linearLayoutManager);
+                            // Set adapter for RecyclerView
                             BookAdapter adapter = new BookAdapter(bookInfoArrayList, MainActivity.this);
                             mRecyclerView.setAdapter(adapter);
 
@@ -141,17 +133,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 },
-
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(MainActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                error -> {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(MainActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 });
 
-        // Add the request to the queue
-        queue.add(booksObjRequest);
+        mRequestQueue.add(booksObjRequest);
     }
 }
-

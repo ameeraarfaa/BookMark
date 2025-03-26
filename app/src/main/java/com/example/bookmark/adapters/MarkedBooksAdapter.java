@@ -1,4 +1,4 @@
-package com.example.bookmark;
+package com.example.bookmark.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,46 +11,68 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.bookmark.models.BookInfo;
+import com.example.bookmark.models.MarkedBooks;
+import com.example.bookmark.R;
 
 import java.util.List;
 
 public class MarkedBooksAdapter extends RecyclerView.Adapter<MarkedBooksAdapter.MarkedBooksViewHolder> {
-    private List<MarkedBooks> markedBooksList;
+
+    private List<BookInfo> bookList;
     private Context context;
 
-    public MarkedBooksAdapter(List<MarkedBooks> markedBooksList, Context context) {
-        this.markedBooksList = markedBooksList;
+    // Constructor
+    public MarkedBooksAdapter(List<BookInfo> bookList, Context context) {
+        this.bookList = bookList;
         this.context = context;
     }
 
+    // This method inflates the layout for each book item
     @NonNull
     @Override
     public MarkedBooksViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_marked_book, parent, false);
+        // Inflate book_rv_item.xml for each item in the RecyclerView
+        View view = LayoutInflater.from(context).inflate(R.layout.book_rv_item, parent, false);
         return new MarkedBooksViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull MarkedBooksViewHolder holder, int position) {
-        MarkedBooks book = markedBooksList.get(position);
+        // Get the current book info from the list
+        BookInfo book = bookList.get(position);
         holder.titleTextView.setText(book.getTitle());
-        holder.authorTextView.setText(book.getAuthor());
-        holder.publishedDateTextView.setText(book.getPublishedDate());
-        Glide.with(context).load(book.getThumbnailUrl()).into(holder.thumbnailImageView);
-    }
 
+        // Set author (handling null or empty cases)
+        String author = (book.getAuthors() != null && !book.getAuthors().isEmpty())
+                ? book.getAuthors().get(0)
+                : "Unknown Author";
+        holder.authorTextView.setText(author);
+
+        holder.publishedDateTextView.setText(book.getPublishedDate());
+
+        // Load image with Glide (use a placeholder image if no thumbnail is available)
+        if (book.getThumbnail() != null && !book.getThumbnail().isEmpty()) {
+            Glide.with(context).load(book.getThumbnail()).into(holder.thumbnailImageView);
+        } else {
+            Glide.with(context).load(R.drawable.error_image).into(holder.thumbnailImageView);
+        }
+    }
 
     @Override
     public int getItemCount() {
-        return markedBooksList.size();
+        return bookList.size();
     }
 
-    public void updateBooks(List<MarkedBooks> newBooks) {
-        markedBooksList.clear();
-        markedBooksList.addAll(newBooks);
+    // Update the book list (used when the list is sorted)
+    public void updateBooks(List<BookInfo> newBooks) {
+        bookList.clear();
+        bookList.addAll(newBooks);
         notifyDataSetChanged();
     }
 
+    // ViewHolder class to hold each item view
     public class MarkedBooksViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView, authorTextView, publishedDateTextView;
         ImageView thumbnailImageView;
@@ -63,5 +85,4 @@ public class MarkedBooksAdapter extends RecyclerView.Adapter<MarkedBooksAdapter.
             thumbnailImageView = itemView.findViewById(R.id.bookThumbnail);
         }
     }
-
 }

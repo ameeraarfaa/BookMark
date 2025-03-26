@@ -1,9 +1,10 @@
-package com.example.bookmark;
+package com.example.bookmark.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -12,10 +13,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.bookmark.models.BookInfo;
+import com.example.bookmark.R;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BookDetails is an activity that displays detailed information about a selected book.
@@ -86,10 +92,10 @@ public class BookDetails extends AppCompatActivity {
             public void onClick(View v) {
                 if (isBookMarked(title)) {
                     unmarkBook(title);
-                    markBtn.setText("Mark as Interesting");
+                    markBtn.setText("Mark This Book");
                 } else {
                     markBook(new BookInfo(title, subtitle, authors, publisher, publishedDate, description, pageCount, thumbnail, previewLink, infoLink, buyLink));
-                    markBtn.setText("Unmark");
+                    markBtn.setText("Unmark This Book");
                 }
             }
         });
@@ -135,23 +141,58 @@ public class BookDetails extends AppCompatActivity {
      * @param book The book to be marked.
      */
     private void markBook(BookInfo book) {
-        SharedPreferences preferences = getSharedPreferences("bookmarks", MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences("MarkedBooksPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        String json = new Gson().toJson(book); // Convert BookInfo object to JSON
-        editor.putString(book.getTitle(), json); // Store the book using title as key
+        Gson gson = new Gson();
+
+        // Get existing list
+        String json = preferences.getString("markedBooks", "[]");
+        Type type = new TypeToken<List<BookInfo>>() {}.getType();
+        List<BookInfo> bookList = gson.fromJson(json, type);
+
+        // Add new book if it's not already in the list
+        for (BookInfo b : bookList) {
+            if (b.getTitle().equals(book.getTitle())) {
+                Log.d("BookMarking", "Book is already marked: " + book.getTitle());
+                return; // Avoid duplicates
+            }
+        }
+        bookList.add(book);
+
+        // Save updated list
+        String updatedJson = gson.toJson(bookList);
+        editor.putString("markedBooks", updatedJson);
         editor.apply();
+
+        Log.d("BookMarking", "Book marked: " + book.getTitle());
     }
+
 
     /**
      * Unmarks a book by removing it from SharedPreferences.
      * @param title The title of the book to be unmarked.
      */
     private void unmarkBook(String title) {
-        SharedPreferences preferences = getSharedPreferences("bookmarks", MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences("MarkedBooksPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.remove(title); // Remove the book using title as key
+        Gson gson = new Gson();
+
+        // Get existing list
+        String json = preferences.getString("markedBooks", "[]");
+        Type type = new TypeToken<List<BookInfo>>() {}.getType();
+        List<BookInfo> bookList = gson.fromJson(json, type);
+
+        // Remove book by title
+        bookList.removeIf(book -> book.getTitle().equals(title));
+
+        // Save updated list
+        String updatedJson = gson.toJson(bookList);
+        editor.putString("markedBooks", updatedJson);
         editor.apply();
+
+        Log.d("BookMarking", "Book unmarked: " + title);
     }
+
 
     /**
      * Checks if a book is marked (exists in SharedPreferences).
@@ -159,7 +200,23 @@ public class BookDetails extends AppCompatActivity {
      * @return true if the book is marked, false otherwise.
      */
     private boolean isBookMarked(String title) {
-        SharedPreferences preferences = getSharedPreferences("bookmarks", MODE_PRIVATE);
-        return preferences.contains(title); // Check if the book exists in SharedPreferences
+        SharedPreferences preferences = getSharedPreferences("MarkedBooksPrefs", MODE_PRIVATE);
+        Gson gson = new Gson();
+
+        // Get existing list
+        String json = preferences.getString("markedBooks", "[]");
+        Type type = new TypeToken<List<BookInfo>>() {}.getType();
+        List<BookInfo> bookList = gson.fromJson(json, type);
+
+        // Check if book exists in list
+        for (BookInfo book : bookList) {
+            if (book.getTitle().equals(title)) {
+                Log.d("BookMarking", "Book is marked: " + title);
+                return true;
+            }
+        }
+        Log.d("BookMarking", "Book is not marked: " + title);
+        return false;
     }
+
 }

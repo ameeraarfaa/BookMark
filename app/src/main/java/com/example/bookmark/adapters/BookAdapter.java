@@ -1,4 +1,4 @@
-package com.example.bookmark;
+package com.example.bookmark.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.bookmark.activities.BookDetails;
+import com.example.bookmark.models.BookInfo;
+import com.example.bookmark.R;
 
 import java.util.ArrayList;
 

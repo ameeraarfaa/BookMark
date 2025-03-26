@@ -1,49 +1,60 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
+    <!-- Search Bar -->
     <LinearLayout
         android:id="@+id/idLLsearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="5">
+        android:weightSum="5"
+        android:layout_alignParentTop="true">
 
-        <!--edit text for getting the search
-            query for book from user-->
         <EditText
             android:id="@+id/idEdtSearchBooks"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4" />
+            android:layout_weight="4"
+            android:hint="Search books..." />
 
-        <!--image button for our search button -->
         <ImageButton
             android:id="@+id/idBtnSearch"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:src="@drawable/ic_search" />
-
     </LinearLayout>
 
-    <!--recycler view for displaying our list of books-->
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/idRVBooks"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/idLLsearch" />
+        android:layout_below="@id/idLLsearch"
+        android:layout_above="@id/bottom_navigation" />
 
-    <!--progressbar for displaying our loading indicator-->
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/idLoadingPB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="gone" />
+
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white" />
+
 
 </RelativeLayout>

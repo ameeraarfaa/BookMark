@@ -1,4 +1,4 @@
-package com.example.bookmark;
+package com.example.bookmark.models;
 
 public class MarkedBooks {
     private String title;

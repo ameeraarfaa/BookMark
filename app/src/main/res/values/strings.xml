@@ -1,11 +1,15 @@
 <resources>
     <string name="app_name">BookMark</string>
     <string name="title_activity_book_details">Book Details</string>
+    <string name="title_marked_books">Marked Books</string>
+
 
     <string-array name="sort_options">
         <item>Published Date Ascending</item>
         <item>Published Date Descending</item>
         <item>Author Ascending</item>
         <item>Author Descending</item>
+        <item>Oldest Marked</item>
+        <item>Latest Marked</item>
     </string-array>
 </resources>
