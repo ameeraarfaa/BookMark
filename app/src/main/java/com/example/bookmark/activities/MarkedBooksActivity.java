@@ -1,5 +1,6 @@
 package com.example.bookmark.activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +20,7 @@ import com.example.bookmark.adapters.MarkedBooksAdapter;
 import com.example.bookmark.models.BookInfo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -50,10 +52,23 @@ public class MarkedBooksActivity extends AppCompatActivity {
             Log.d("BookMarking", "Books loaded: " + markedBooksList.size());
         }
 
-        // Use LinearLayoutManager for a simple vertical list
+        // Set up RecyclerView
         markedBooksAdapter = new MarkedBooksAdapter(markedBooksList, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(markedBooksAdapter);
+
+        // Set up Bottom Navigation
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.nav_marked_books);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.nav_search) {
+                Intent intent = new Intent(MarkedBooksActivity.this, MainActivity.class);
+                startActivity(intent);
+                overridePendingTransition(0, 0); // Smooth transition
+                return true;
+            }
+            return false;
+        });
 
         // Set up Spinner for sorting options
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
