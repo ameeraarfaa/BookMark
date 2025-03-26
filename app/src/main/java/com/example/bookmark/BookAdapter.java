@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.bookmark.BookInfo;
 import com.squareup.picasso.Picasso;
 
@@ -72,11 +73,12 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
 
         // Load book thumbnail using Picasso with error handling
         if (bookInfo.getThumbnail() != null && !bookInfo.getThumbnail().isEmpty()) {
-            Picasso.get()
+            Glide.with(holder.bookIV.getContext())
                     .load(bookInfo.getThumbnail())
-                    .placeholder(R.drawable.placeholder_image)
-                    .error(R.drawable.error_image) // Image to show if loading fails
+                    .placeholder(R.drawable.placeholder_image)  // Placeholder image while loading
+                    .error(R.drawable.error_image)             // Image to show if loading fails
                     .into(holder.bookIV);
+
         } else {
             // Set placeholder image if URL is invalid
             holder.bookIV.setImageResource(R.drawable.placeholder_image);
