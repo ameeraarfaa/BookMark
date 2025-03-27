@@ -24,7 +24,6 @@ import com.android.volley.toolbox.Volley;
 import com.example.bookmark.adapters.BookAdapter;
 import com.example.bookmark.models.BookInfo;
 import com.example.bookmark.R;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +34,7 @@ import java.util.ArrayList;
 /**
  * MainActivity is the primary activity in the app. It allows the user to search for books
  * using the Google Books API. The results are displayed in a RecyclerView. It also provides
- * navigation options to the "Marked Books" activity via a Bottom Navigation Bar.
+ * navigation options to the "Marked Books" activity via an options menu.
  *
  * This activity handles:
  * - Search functionality using the Google Books API
@@ -50,10 +49,11 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchEdt;
     private ImageButton searchBtn;
     private RecyclerView mRecyclerView;
+    private BookAdapter bookAdapter;  // ✅ Declare bookAdapter as a field to be used globally
 
     /**
      * Called when the activity is created.
-     * Initializes UI components, sets up RecyclerView, and handles bottom navigation.
+     * Initializes UI components, sets up RecyclerView.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,20 +69,6 @@ public class MainActivity extends AppCompatActivity {
         // Set up RecyclerView layout manager
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
-
-        // Set up Bottom Navigation to navigate to marked books activity
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.nav_search); // Set default selection to search
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_marked_books) {
-                // Navigate to MarkedBooksActivity when 'Marked Books' is selected
-                Intent intent = new Intent(MainActivity.this, MarkedBooksActivity.class);
-                startActivity(intent);
-                overridePendingTransition(0, 0); // Smooth transition
-                return true;
-            }
-            return false;
-        });
 
         // Set up click listener for search button
         searchBtn.setOnClickListener(v -> {
@@ -134,6 +120,21 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Handles the selection of an item from the context menu.
+     * @param item The selected menu item.
+     * @return true if the selection was handled, otherwise calls the superclass implementation.
+     */
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == 101) {
+            if (bookAdapter != null) {
+                bookAdapter.shareBook();
+            }
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
 
     /**
      * Fetches book information from the Google Books API based on the search query.
@@ -188,9 +189,9 @@ public class MainActivity extends AppCompatActivity {
                                         publishedDate, description, pageCount, thumbnail, previewLink, infoLink, buyLink));
                             }
 
-                            // Set the adapter to populate the RecyclerView
-                            BookAdapter adapter = new BookAdapter(bookInfoArrayList, MainActivity.this);
-                            mRecyclerView.setAdapter(adapter);
+                            // ✅ Store the adapter in the global variable so it can be accessed elsewhere
+                            bookAdapter = new BookAdapter(bookInfoArrayList, MainActivity.this);
+                            mRecyclerView.setAdapter(bookAdapter);
 
                         } catch (JSONException e) {
                             e.printStackTrace();

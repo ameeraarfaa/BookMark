@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bookmark.R;
 import com.example.bookmark.adapters.BookAdapter;
 import com.example.bookmark.models.BookInfo;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -33,7 +32,7 @@ import java.util.List;
 /**
  * MarkedBooksActivity displays the list of books marked by the user.
  * It loads the marked books from SharedPreferences, allows the user to sort them
- * based on published date, author, or marking time, and provides bottom navigation
+ * based on published date, author, or marking time, and provides options menu
  * to return to the search screen (MainActivity).
  */
 public class MarkedBooksActivity extends AppCompatActivity {
@@ -42,7 +41,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
     private BookAdapter bookAdapter;
     private Spinner spinnerSort;
     private List<BookInfo> markedBooksList;
-    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +50,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
         // Initialize views
         recyclerView = findViewById(R.id.recyclerViewMarkedBooks);
         spinnerSort = findViewById(R.id.spinnerSort);
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         // Load marked books from SharedPreferences
         markedBooksList = loadMarkedBooks();
@@ -70,21 +67,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
         bookAdapter = new BookAdapter(new ArrayList<>(markedBooksList), this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(bookAdapter);
-
-        // Set up Bottom Navigation
-        bottomNavigationView.setSelectedItemId(R.id.nav_marked_books);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if (item.getItemId() == R.id.nav_search) {
-                    Intent intent = new Intent(MarkedBooksActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    overridePendingTransition(0, 0); // Smooth transition
-                    return true;
-                }
-                return false;
-            }
-        });
 
         // Set up Spinner for sorting options
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
@@ -119,9 +101,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
         bookAdapter.updateBooks(markedBooksList);
         bookAdapter.notifyDataSetChanged();
         Log.d("BookMarking", "onResume - Books loaded: " + markedBooksList.size());
-
-        // Ensure the bottom navigation shows the 'Marked Books' tab
-        bottomNavigationView.setSelectedItemId(R.id.nav_marked_books);
     }
 
     /**
@@ -158,10 +137,25 @@ public class MarkedBooksActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    
+    /**
+     * Handles the selection of an item from the context menu.
+     * @param item The selected menu item.
+     * @return true if the selection was handled, otherwise calls the superclass implementation.
+     */
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == 101) {  
+            if (bookAdapter != null) {
+                bookAdapter.shareBook();
+            }
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
 
     /**
      * Loads marked books from SharedPreferences.
-     *
      * @return A List of BookInfo objects representing the marked books.
      */
     private List<BookInfo> loadMarkedBooks() {
