@@ -62,7 +62,7 @@ BookMark is an Android app designed for book lovers who often come across intere
  **7. Intents (Explicit and Implicit)**
 - Explicit Intents are used for internal navigation between specific activities, ensuring clear and predictable app flow (e.g., navigating from BookDetails to MainActivity or MarkedBooksActivity).
 - Implicit Intents handle actions that interact with external apps (e.g., opening a web browser for "Preview" or "Buy" links), offering flexibility by letting Android choose the best app to handle the action.
-- 
+  
 ## Novel Features
 text
 
