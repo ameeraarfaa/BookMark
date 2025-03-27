@@ -72,8 +72,10 @@ BookMark is an Android app designed for book lovers who often come across intere
 ### Challenges and Solutions
 | Challenge        | Solution                                                              |
 |---------------|------------------------------------------------------------------------|
-| Platform      | Android                                                                |
-| Course Code   | ECM2425                                                                |
+| Steep learning curve due to new IDE and concepts     | Regularly referred back to module content and consulted online resources                                                               |
+| Multiple assignments due around the same time   | Planned tasks and broke them into smaller steps to stay on track                                                                |
+| Virtual Android emulator slowed down my device significantly  | Used an old Android mobile device for testing to improve efficiency and performance              |
+| Technical issues (e.g., app crashes, images not loading)   | Learn to filter and read Logcat errors to pinpoint root cause and fix issues                                                               |
 
 ### Improvements and Additional Features
 - Expanded Book API: The current Google Books API has a limited catalog. Integrating more APIs or expanding the database would offer a broader selection, enhancing functionality and user experience.
