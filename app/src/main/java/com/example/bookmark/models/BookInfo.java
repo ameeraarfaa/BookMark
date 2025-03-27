@@ -1,4 +1,4 @@
-package com.example.bookmark;
+package com.example.bookmark.models;
 
 import java.util.ArrayList;
 
@@ -21,6 +21,7 @@ public class BookInfo {
     private String previewLink;
     private String infoLink;
     private String buyLink;
+    private long markedTime;
 
     /**
      * Constructor for the BookInfo class that initializes all book-related details.
@@ -42,7 +43,7 @@ public class BookInfo {
                     String previewLink, String infoLink, String buyLink) {
         this.title = title;
         this.subtitle = subtitle;
-        this.authors = authors;
+        this.authors = (authors == null) ? new ArrayList<>() : authors;
         this.publisher = publisher;
         this.publishedDate = publishedDate;
         this.description = description;
@@ -51,6 +52,7 @@ public class BookInfo {
         this.previewLink = previewLink;
         this.infoLink = infoLink;
         this.buyLink = buyLink;
+        this.markedTime = System.currentTimeMillis(); // Timestamp when user marks a book
     }
 
     /**Book Details Getter and Setter Methods*/
@@ -141,5 +143,12 @@ public class BookInfo {
     public void setBuyLink(String buyLink) {
         this.buyLink = buyLink;
     }
-}
 
+    public long getMarkedTime() {
+        return markedTime;
+    }
+
+    public void setMarkedTime(long markedTime) {
+        this.markedTime = markedTime;
+    }
+}
