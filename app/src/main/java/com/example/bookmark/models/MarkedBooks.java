@@ -1,5 +1,9 @@
 package com.example.bookmark.models;
 
+/**
+ * The `MarkedBooks` class is used to store and
+ * manage data for books that the user has marked
+ * in the application.*/
 public class MarkedBooks {
     private String title;
     private String author;
@@ -14,7 +18,7 @@ public class MarkedBooks {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    // Getters and Setters
+    /**Book Details Getter and Setter Methods*/
     public String getTitle() {
         return title;
     }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Menu item to go to Search (MainActivity) -->
+    <item
+        android:id="@+id/action_search"
+        android:title="Search"
+        android:icon="@drawable/ic_search" />
+    <!-- Menu item to go to Marked Books -->
+    <item
+        android:id="@+id/action_marked_books"
+        android:title="Marked Books"
+        android:icon="@drawable/ic_bookmark_filled"/>
+</menu>

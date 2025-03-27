@@ -5,12 +5,15 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bookmark.models.BookInfo;
@@ -130,10 +133,45 @@ public class BookDetails extends AppCompatActivity {
 
         // Set the Mark button text based on whether the book is already marked
         if (isBookMarked(title)) {
-            markBtn.setText("Unmark");
+            markBtn.setText("Unmark Book");
         } else {
-            markBtn.setText("Mark as Interesting");
+            markBtn.setText("Mark Book");
         }
+    }
+
+    /**
+     * Inflates the options menu from the XML resource.
+     * @param menu The options menu in which items are placed.
+     * @return true to display the menu.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_menu, menu);
+        return true;
+    }
+
+    /**
+     * Handles the selection of an item from the options menu.
+     * @param item The selected menu item.
+     * @return true if the selection was handled, otherwise calls the superclass implementation.
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_search) {
+            // Navigate to MainActivity (Search)
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            return true;
+
+        } else if (id == R.id.action_marked_books) {
+            // Navigate to MarkedBooksActivity
+            Intent intent = new Intent(this, MarkedBooksActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**

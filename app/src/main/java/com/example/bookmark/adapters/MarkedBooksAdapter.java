@@ -56,12 +56,12 @@ public class MarkedBooksAdapter extends RecyclerView.Adapter<MarkedBooksAdapter.
     public int getItemCount() {
         return bookList.size();
     }
-
     public void updateBooks(List<BookInfo> newBooks) {
         bookList.clear();
         bookList.addAll(newBooks);
         notifyDataSetChanged();
     }
+
 
     // ViewHolder class
     public class MarkedBooksViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {

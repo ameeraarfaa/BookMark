@@ -18,14 +18,14 @@
         <EditText
             android:id="@+id/idEdtSearchBooks"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="59dp"
             android:layout_weight="4"
             android:hint="Search books..." />
 
         <ImageButton
             android:id="@+id/idBtnSearch"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:src="@drawable/ic_search" />
     </LinearLayout>

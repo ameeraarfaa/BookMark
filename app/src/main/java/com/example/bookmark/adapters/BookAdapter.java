@@ -1,7 +1,10 @@
 package com.example.bookmark.adapters;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +19,11 @@ import com.bumptech.glide.Glide;
 import com.example.bookmark.activities.BookDetails;
 import com.example.bookmark.models.BookInfo;
 import com.example.bookmark.R;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BookAdapter is a RecyclerView Adapter class that handles the display of book information
@@ -141,6 +147,8 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         return bookInfoArrayList.size();
     }
 
+
+
     /**
      * ViewHolder class to hold references to the views for each item in the RecyclerView.
      * It contains TextViews for book details and an ImageView for the book thumbnail.
@@ -163,17 +171,62 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         }
     }
 
-    // Placeholder methods for checking and marking books (implement as needed)
+    public void updateBooks(List<BookInfo> newBooks) {
+        bookInfoArrayList.clear();
+        bookInfoArrayList.addAll(newBooks);
+        notifyDataSetChanged();
+    }
+
     private boolean isBookMarked(String title) {
-        // Implement logic to check if the book is marked (e.g., using SharedPreferences, database, etc.)
-        return false;  // For now, return false (not marked)
+        SharedPreferences preferences = mcontext.getSharedPreferences("MarkedBooksPrefs", MODE_PRIVATE);
+        String json = preferences.getString("markedBooks", "[]");
+        List<BookInfo> bookList = new Gson().fromJson(json, new TypeToken<List<BookInfo>>() {}.getType());
+        if (bookList != null) {
+            for (BookInfo book : bookList) {
+                if (book.getTitle().equals(title)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void markBook(BookInfo book) {
-        // Implement logic to mark the book (e.g., using SharedPreferences, database, etc.)
+        SharedPreferences preferences = mcontext.getSharedPreferences("MarkedBooksPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        String json = preferences.getString("markedBooks", "[]");
+        List<BookInfo> bookList = new Gson().fromJson(json, new TypeToken<List<BookInfo>>() {}.getType());
+        if (bookList == null) {
+            bookList = new ArrayList<>();
+        }
+        // Avoid duplicates:
+        for (BookInfo b : bookList) {
+            if (b.getTitle().equals(book.getTitle())) {
+                return;
+            }
+        }
+        bookList.add(book);
+        String updatedJson = new Gson().toJson(bookList);
+        editor.putString("markedBooks", updatedJson);
+        editor.apply();
     }
 
     private void unmarkBook(String title) {
-        // Implement logic to unmark the book (e.g., using SharedPreferences, database, etc.)
+        SharedPreferences preferences = mcontext.getSharedPreferences("MarkedBooksPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        String json = preferences.getString("markedBooks", "[]");
+        List<BookInfo> bookList = new Gson().fromJson(json, new TypeToken<List<BookInfo>>() {}.getType());
+        if (bookList != null) {
+            for (int i = 0; i < bookList.size(); i++) {
+                if (bookList.get(i).getTitle().equals(title)) {
+                    bookList.remove(i);
+                    break;
+                }
+            }
+            String updatedJson = new Gson().toJson(bookList);
+            editor.putString("markedBooks", updatedJson);
+            editor.apply();
+        }
     }
+
 }
