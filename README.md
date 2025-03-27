@@ -64,14 +64,19 @@ BookMark is an Android app designed for book lovers who often come across intere
 - Implicit Intents handle actions that interact with external apps (e.g., opening a web browser for "Preview" or "Buy" links), offering flexibility by letting Android choose the best app to handle the action.
   
 ## Novel Features
-text
+- Book Marking Feature: Allows users to mark and unmark books, helping them easily track books of interest and return to them later, providing a personalized and seamless experience across app sessions.
+
+- Preview and Buy Links: Integration of external links for "Preview" and "Buy" buttons enables users to quickly access additional resources like book previews or purchase pages, streamlining the process without leaving the app.
 
 ## Challenges and Future Imrpovements
-### 4.1) Challenges and Solutions
+### Challenges and Solutions
 | Challenge        | Solution                                                              |
 |---------------|------------------------------------------------------------------------|
 | Platform      | Android                                                                |
 | Course Code   | ECM2425                                                                |
 
-### 4.2) Improvements and Additional Features
-test
+### Improvements and Additional Features
+- Expanded Book API: The current Google Books API has a limited catalog. Integrating more APIs or expanding the database would offer a broader selection, enhancing functionality and user experience.
+- Additional Sorting Categories: Implementing more sorting options, such as by genre, rating, or price, would allow users to organize their marked books in a way that better suits their preferences, enhancing their overall experience.
+- Book Recommendations: By introducing a recommendation system that suggests books based on the user's marked books, the app can offer personalized suggestions. This would enhance user engagement by helping them discover new books they are likely to enjoy.
+- User Feedback for UI Enhancements: Gathering feedback from users could provide valuable insights into how the app’s interface could be improved without overwhelming any specific group. This would allow for UI refinements that enhance usability while maintaining a simple and accessible design for a diverse audience.
