@@ -16,10 +16,26 @@ BookMark is an Android app designed for book lovers who often come across intere
 
 * Share with Others – Use Android’s built-in sharing options (Android Sharesheet) to send book details via your preferred apps.
 
-### 1.3) Configuring and Running the Application
-text
+###  How to Use the Application
+1. **Search for Books**  
+   - Open the app and enter a keyword in the search bar.  
+   - Browse the list of books that match your search.  
+   - Each book in the list has two icons at the bottom corner:  
+     - 🔖 Bookmark Icon: A quick shortcut to mark the book without opening its details.  
+     - 🔗 Share Icon: Opens a menu to share the book using Android’s built-in sharing options.  
 
-## 2) Design Rationale
+2. **View Book Details**  
+   - Tap on a book to see more details.  
+   - Choose from the following options:  
+     - Preview: View the book on Google Books.  
+     - Buy: Open a link to purchase the book.  
+     - Mark: Save the book for later reference.  
+
+3. **Manage Marked Books**  
+   - Go to the Marked Books section to see books you’ve saved.  
+   - Sort them by marking date, author, or publication date.  
+
+## Design Rationale
 text
 
 ## 3) Novel Features
