@@ -33,6 +33,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * MarkedBooksActivity displays a list of books that have been marked by the user.
+ * It uses a RecyclerView with a BookAdapter to show the marked books,
+ * which are loaded from SharedPreferences. It also provides sorting options via a Spinner,
+ * and listens for a broadcast (ACTION_REFRESH) to refresh its content automatically when
+ * a book is marked or unmarked.
+ *
+ */
 public class MarkedBooksActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
@@ -40,19 +48,24 @@ public class MarkedBooksActivity extends AppCompatActivity {
     private Spinner spinnerSort;
     private List<BookInfo> markedBooksList;
 
-    // BroadcastReceiver for refresh action
+    /**
+     * BroadcastReceiver that listens for ACTION_REFRESH broadcasts to refresh the list
+     * of marked books.
+     */
     private BroadcastReceiver refreshReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (context instanceof MarkedBooksActivity) {
-                ((MarkedBooksActivity) context).refreshMarkedBooks();
-            } else {
-                Log.e("RefreshReceiver", "Received broadcast with invalid context");
-                Toast.makeText(context, "Failed to refresh books, invalid context.", Toast.LENGTH_SHORT).show();
-            }
+            Log.d("MarkedBooksActivity", "Broadcast received: " + intent.getAction());
+            refreshMarkedBooks();
         }
     };
 
+    /**
+     * Sets up the UI by initializing the RecyclerView, Spinner, and loads the marked books.
+     * The default sort order is "Latest Marked". It also sets up the Spinner's item selected
+     * listener to re-sort the list when an option is chosen.
+     * @param savedInstanceState the saved instance state bundle.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,10 +116,13 @@ public class MarkedBooksActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Reloads the marked books, applies the default "Latest Marked" sort order,
+     * and updates the RecyclerView.
+     */
     @Override
     protected void onResume() {
         super.onResume();
-        // Reload marked books when the activity resumes
         markedBooksList = loadMarkedBooks();
         sortBooks(0); // Ensure sorting remains "Latest Marked"
         bookAdapter.updateBooks(markedBooksList);
@@ -114,6 +130,11 @@ public class MarkedBooksActivity extends AppCompatActivity {
         Log.d("BookMarking", "onResume - Books loaded: " + markedBooksList.size());
     }
 
+    /**
+     * Called when the activity becomes visible.
+     * Registers the broadcast receiver to listen for ACTION_REFRESH events.
+     *
+     */
     @SuppressLint("MissingReceiverExport")
     @Override
     protected void onStart() {
@@ -123,14 +144,14 @@ public class MarkedBooksActivity extends AppCompatActivity {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(refreshReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         } else {
-            // Suppress the lint warning for older API levels
             //noinspection ReceiverNotExported
             registerReceiver(refreshReceiver, filter);
         }
     }
 
-
-
+    /**
+     * Unregisters the broadcast receiver.
+     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -138,20 +159,36 @@ public class MarkedBooksActivity extends AppCompatActivity {
         unregisterReceiver(refreshReceiver);
     }
 
+    /**
+     * This method reloads the marked books from SharedPreferences, applies the default
+     * sort order, and updates the RecyclerView adapter.
+     *
+     */
     protected void refreshMarkedBooks() {
-        // Reload the marked books from SharedPreferences and update the adapter
+        Log.d("MarkedBooksActivity", "Refreshing marked books...");
         markedBooksList = loadMarkedBooks();
         sortBooks(0); // Sort the books after refreshing
         bookAdapter.updateBooks(markedBooksList);
         bookAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Inflates the options menu.
+     * @param menu the menu to inflate.
+     * @return true if the menu is inflated successfully.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.options_menu, menu);
         return true;
     }
 
+    /**
+     * Handles selections on the options menu. Navigates to MainActivity when the search option is selected, or prevents reopening
+     * MarkedBooksActivity if it's already open.
+     * @param item the selected menu item.
+     * @return true if the menu item is handled.
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -172,7 +209,11 @@ public class MarkedBooksActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
+    /**
+     * Handles context menu selections.
+     * @param item the selected context menu item.
+     * @return true if the selection is handled.
+     */
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == 101) {
@@ -184,6 +225,13 @@ public class MarkedBooksActivity extends AppCompatActivity {
         return super.onContextItemSelected(item);
     }
 
+    /**
+     * Loads the marked books from SharedPreferences.
+     * The books are stored as a JSON array under the key "markedBooks" in SharedPreferences.
+     * If no books are found, an empty list is returned.
+     *
+     * @return a List of BookInfo objects representing the marked books.
+     */
     private List<BookInfo> loadMarkedBooks() {
         SharedPreferences preferences = getSharedPreferences("MarkedBooksPrefs", MODE_PRIVATE);
         Gson gson = new Gson();
@@ -196,6 +244,22 @@ public class MarkedBooksActivity extends AppCompatActivity {
         return bookList;
     }
 
+    /**
+     * Sorts the marked books list based on the provided position.
+     * <p>
+     * The sorting options are:
+     * <ul>
+     *     <li>0: Latest Marked (Descending by marked time)</li>
+     *     <li>1: Oldest Marked (Ascending by marked time)</li>
+     *     <li>2: Published Date Ascending</li>
+     *     <li>3: Published Date Descending</li>
+     *     <li>4: Author Ascending</li>
+     *     <li>5: Author Descending</li>
+     * </ul>
+     * </p>
+     *
+     * @param position the index corresponding to the selected sort option.
+     */
     private void sortBooks(int position) {
         switch (position) {
             case 0: // Latest Marked

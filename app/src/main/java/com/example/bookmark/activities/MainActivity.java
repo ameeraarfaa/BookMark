@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchEdt;
     private ImageButton searchBtn;
     private RecyclerView mRecyclerView;
-    private BookAdapter bookAdapter;  // ✅ Declare bookAdapter as a field to be used globally
+    private BookAdapter bookAdapter;
 
     /**
      * Called when the activity is created.
@@ -61,10 +61,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Initialize UI components
-        progressBar = findViewById(R.id.idLoadingPB); // Progress bar to show loading state
-        searchEdt = findViewById(R.id.idEdtSearchBooks); // EditText to input search query
-        searchBtn = findViewById(R.id.idBtnSearch); // Search button
-        mRecyclerView = findViewById(R.id.idRVBooks); // RecyclerView to display books
+        progressBar = findViewById(R.id.idLoadingPB);
+        searchEdt = findViewById(R.id.idEdtSearchBooks);
+        searchBtn = findViewById(R.id.idBtnSearch);
+        mRecyclerView = findViewById(R.id.idRVBooks);
 
         // Set up RecyclerView layout manager
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
@@ -72,12 +72,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up click listener for search button
         searchBtn.setOnClickListener(v -> {
-            progressBar.setVisibility(View.VISIBLE); // Show loading indicator
-            String query = searchEdt.getText().toString().trim(); // Get search query from input field
+            progressBar.setVisibility(View.VISIBLE);
+            String query = searchEdt.getText().toString().trim();
             if (query.isEmpty()) {
                 // Show error if search query is empty
                 searchEdt.setError("Please enter search query");
-                progressBar.setVisibility(View.GONE); // Hide loading indicator
+                progressBar.setVisibility(View.GONE);
             } else {
                 // Fetch book information if query is valid
                 getBooksInfo(query);
@@ -142,8 +142,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void getBooksInfo(String query) {
         bookInfoArrayList = new ArrayList<>();
-        mRequestQueue = Volley.newRequestQueue(MainActivity.this); // Create a new request queue
-        mRequestQueue.getCache().clear(); // Clear cache to ensure fresh data
+        mRequestQueue = Volley.newRequestQueue(MainActivity.this);
+        mRequestQueue.getCache().clear();
 
         // URL for Google Books API to search books based on the query
         String url = "https://www.googleapis.com/books/v1/volumes?q=" + query;
@@ -189,24 +189,22 @@ public class MainActivity extends AppCompatActivity {
                                         publishedDate, description, pageCount, thumbnail, previewLink, infoLink, buyLink));
                             }
 
-                            // ✅ Store the adapter in the global variable so it can be accessed elsewhere
+
                             bookAdapter = new BookAdapter(bookInfoArrayList, MainActivity.this);
                             mRecyclerView.setAdapter(bookAdapter);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            // Show error message if parsing fails
                             Toast.makeText(MainActivity.this, "No Data Found: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 },
                 error -> {
-                    progressBar.setVisibility(View.GONE); // Hide loading indicator on error
-                    // Show error message
+                    progressBar.setVisibility(View.GONE);
                     Toast.makeText(MainActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 });
 
-        // Add the request to the request queue to be processed
+
         mRequestQueue.add(booksObjRequest);
     }
 }
