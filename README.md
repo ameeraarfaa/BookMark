@@ -1,6 +1,6 @@
 # BookMark
 An Android application developed as part of the ECM2425 Mobile and Ubiquitous Computing coursework.
-Also included in the root directory of this submission is the GenAI declaration document
+Also included in the root directory of this submission is the GenAI declaration document.
 
 ## Introduction
 ### Purpose of Application
