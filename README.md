@@ -1,5 +1,6 @@
 # BookMark
 An Android application developed as part of the ECM2425 Mobile and Ubiquitous Computing coursework.
+Also included in the root directory of this submission is the GenAI declaration document
 
 ## Introduction
 ### Purpose of Application
@@ -10,7 +11,7 @@ BookMark is an Android app designed for book lovers who often come across intere
 
 * Preview & Buy – View book details, preview them (if available), or access a purchase link.
 
-* Mark Books – Save books you want to keep an eye on for later reference.
+* Mark Books – Save books you want to keep an eye on for later.
 
 * View Marked Books – Access your saved books in the Marked Books section, with sorting options (by marking date, author, or publication date).
 
@@ -37,7 +38,7 @@ BookMark is an Android app designed for book lovers who often come across intere
 
 ## Design Rationale
 **1. Options Menu for Easy Navigation**
-- The options menu** in `MarkedBooksActivity` allows easy switching between Search and Marked Books screens, enhancing navigation and providing a straightforward way to access the main features.
+- The options menu that is persistent throughout the app allows easy navigation between Search and Marked Books screens, providing a straightforward way to access the main features.
 
 **2. Reusing `BookAdapter` and `BookInfo`**
 - `BookAdapter` and `BookInfo` are reused in both `MainActivity` and `MarkedBooksActivity`, avoiding redundant code and ensuring consistency. This simplifies maintenance and improves code reusability.
