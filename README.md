@@ -27,8 +27,8 @@ BookMark is an Android app designed for book lovers who often come across intere
 2. **View Book Details**  
    - Tap on a book to see more details.  
    - Choose from the following options:  
-     - Preview: View the book on Google Books.  
-     - Buy: Open a link to purchase the book.  
+     - Preview: View the book on Google Books website.  
+     - Buy: Opens the book on Google Play Books (if the Book is available on Google Play, else an error message appears).  
      - Mark: Save the book for later reference.  
 
 3. **Manage Marked Books**  
