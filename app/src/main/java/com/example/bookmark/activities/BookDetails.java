@@ -122,7 +122,7 @@ public class BookDetails extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (buyLink.isEmpty()) {
-                    Toast.makeText(BookDetails.this, "No buy page present for this book", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BookDetails.this, "No buy page present for this book on Google Play", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Uri uri = Uri.parse(buyLink);

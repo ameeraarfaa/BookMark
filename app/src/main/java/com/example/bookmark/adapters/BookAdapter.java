@@ -27,6 +27,7 @@ import java.util.List;
 
 /**
  * BookAdapter handles displaying book information in a RecyclerView.
+ * It allows users to mark/unmark books, open book details and share the book.
  */
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder> {
 
@@ -34,6 +35,11 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     private Context mcontext;
     private int selectedPosition = -1; // Stores selected item position for context menu
 
+    /**
+     * Constructor for BookAdapter.
+     * @param bookInfoArrayList List of books to display.
+     * @param mcontext Context of the activity.
+     */
     public BookAdapter(ArrayList<BookInfo> bookInfoArrayList, Context mcontext) {
         this.bookInfoArrayList = bookInfoArrayList;
         this.mcontext = mcontext;
@@ -86,6 +92,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             notifyDataSetChanged();
         });
 
+
         // Open BookDetails on Click
         holder.itemView.setOnClickListener(v -> {
             Intent i = new Intent(mcontext, BookDetails.class);
@@ -115,6 +122,9 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         return bookInfoArrayList.size();
     }
 
+    /**
+     * ViewHolder class for BookAdapter.
+     */
     public class BookViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         TextView nameTV, publisherTV, pageCountTV, dateTV;
         ImageView bookIV, moreOptionsIV;
@@ -139,12 +149,21 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         }
     }
 
+    /**
+     * Updates the book list and refreshes the adapter.
+     * @param newBooks New list of books.
+     */
     public void updateBooks(List<BookInfo> newBooks) {
         bookInfoArrayList.clear();
         bookInfoArrayList.addAll(newBooks);
         notifyDataSetChanged();
     }
 
+    /**
+     * Checks if a book is marked.
+     * @param title Book title.
+     * @return True if marked, false otherwise.
+     */
     // Method to handle marking books
     private boolean isBookMarked(String title) {
         SharedPreferences preferences = mcontext.getSharedPreferences("MarkedBooksPrefs", Context.MODE_PRIVATE);
@@ -153,6 +172,10 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         return bookList != null && bookList.stream().anyMatch(book -> book.getTitle().equals(title));
     }
 
+    /**
+     * Marks a book and saves it to SharedPreferences.
+     * @param book BookInfo object.
+     */
     private void markBook(BookInfo book) {
         SharedPreferences preferences = mcontext.getSharedPreferences("MarkedBooksPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -172,8 +195,17 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         bookList.add(book);
         editor.putString("markedBooks", new Gson().toJson(bookList));
         editor.apply();
+
+        // Send broadcast to refresh after marking
+        Intent intent = new Intent("com.example.bookmark.ACTION_REFRESH");
+        mcontext.sendBroadcast(intent);
     }
 
+    /**
+     * Removes a book from the marked books list and updates SharedPreferences.
+     * Also sends a broadcast to notify the activity to refresh the book list.
+     * @param title The title of the book to be unmarked.
+     */
     private void unmarkBook(String title) {
         SharedPreferences preferences = mcontext.getSharedPreferences("MarkedBooksPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -184,10 +216,17 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             bookList.removeIf(book -> book.getTitle().equals(title));
             editor.putString("markedBooks", new Gson().toJson(bookList));
             editor.apply();
+
+            // Send a broadcast to notify the activity to refresh
+            Intent intent = new Intent("com.example.bookmark.ACTION_REFRESH");
+            mcontext.sendBroadcast(intent);
         }
     }
 
-    // Share Book Method
+    /**
+     * Shares the selected book's details via an intent.
+     * Opens Android's Sharesheet where the user can choose an app to share the book information.
+     */
     public void shareBook() {
         if (selectedPosition != -1 && selectedPosition < bookInfoArrayList.size()) {
             BookInfo bookInfo = bookInfoArrayList.get(selectedPosition);
