@@ -174,18 +174,23 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         editor.apply();
     }
 
-    private void unmarkBook(String title) {
-        SharedPreferences preferences = mcontext.getSharedPreferences("MarkedBooksPrefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        String json = preferences.getString("markedBooks", "[]");
-        List<BookInfo> bookList = new Gson().fromJson(json, new TypeToken<List<BookInfo>>() {}.getType());
+        private void unmarkBook(String title) {
+            SharedPreferences preferences = mcontext.getSharedPreferences("MarkedBooksPrefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            String json = preferences.getString("markedBooks", "[]");
+            List<BookInfo> bookList = new Gson().fromJson(json, new TypeToken<List<BookInfo>>() {}.getType());
 
-        if (bookList != null) {
-            bookList.removeIf(book -> book.getTitle().equals(title));
-            editor.putString("markedBooks", new Gson().toJson(bookList));
-            editor.apply();
+            if (bookList != null) {
+                bookList.removeIf(book -> book.getTitle().equals(title));
+                editor.putString("markedBooks", new Gson().toJson(bookList));
+                editor.apply();
+
+                // Send a broadcast to notify the activity to refresh
+                Intent intent = new Intent("com.example.bookmark.ACTION_REFRESH");
+                mcontext.sendBroadcast(intent);
+            }
         }
-    }
+
 
     // Share Book Method
     public void shareBook() {

@@ -1,6 +1,10 @@
 package com.example.bookmark.activities;
 
+import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,18 +33,25 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * MarkedBooksActivity displays the list of books marked by the user.
- * It loads the marked books from SharedPreferences, allows the user to sort them
- * based on published date, author, or marking time, and provides options menu
- * to return to the search screen (MainActivity).
- */
 public class MarkedBooksActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private BookAdapter bookAdapter;
     private Spinner spinnerSort;
     private List<BookInfo> markedBooksList;
+
+    // BroadcastReceiver for refresh action
+    private BroadcastReceiver refreshReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (context instanceof MarkedBooksActivity) {
+                ((MarkedBooksActivity) context).refreshMarkedBooks();
+            } else {
+                Log.e("RefreshReceiver", "Received broadcast with invalid context");
+                Toast.makeText(context, "Failed to refresh books, invalid context.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,22 +114,44 @@ public class MarkedBooksActivity extends AppCompatActivity {
         Log.d("BookMarking", "onResume - Books loaded: " + markedBooksList.size());
     }
 
-    /**
-     * Inflates the options menu from the XML resource.
-     * @param menu The options menu in which items are placed.
-     * @return true to display the menu.
-     */
+    @SuppressLint("MissingReceiverExport")
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("MarkedBooksActivity", "onStart: Registering refresh receiver");
+        IntentFilter filter = new IntentFilter("com.example.bookmark.ACTION_REFRESH");
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(refreshReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            // Suppress the lint warning for older API levels
+            //noinspection ReceiverNotExported
+            registerReceiver(refreshReceiver, filter);
+        }
+    }
+
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("MarkedBooksActivity", "onStop: Unregistering refresh receiver");
+        unregisterReceiver(refreshReceiver);
+    }
+
+    protected void refreshMarkedBooks() {
+        // Reload the marked books from SharedPreferences and update the adapter
+        markedBooksList = loadMarkedBooks();
+        sortBooks(0); // Sort the books after refreshing
+        bookAdapter.updateBooks(markedBooksList);
+        bookAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.options_menu, menu);
         return true;
     }
 
-    /**
-     * Handles the selection of an item from the options menu.
-     * @param item The selected menu item.
-     * @return true if the selection was handled, otherwise calls the superclass implementation.
-     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -128,24 +161,21 @@ public class MarkedBooksActivity extends AppCompatActivity {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             return true;
-
         } else if (id == R.id.action_marked_books) {
-            // Navigate to MarkedBooksActivity
-            Intent intent = new Intent(this, MarkedBooksActivity.class);
-            startActivity(intent);
+            // Prevent opening the MarkedBooksActivity if it's already open
+            if (!(this instanceof MarkedBooksActivity)) {
+                Intent intent = new Intent(this, MarkedBooksActivity.class);
+                startActivity(intent);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
-    
-    /**
-     * Handles the selection of an item from the context menu.
-     * @param item The selected menu item.
-     * @return true if the selection was handled, otherwise calls the superclass implementation.
-     */
+
+
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == 101) {  
+        if (item.getItemId() == 101) {
             if (bookAdapter != null) {
                 bookAdapter.shareBook();
             }
@@ -154,10 +184,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
         return super.onContextItemSelected(item);
     }
 
-    /**
-     * Loads marked books from SharedPreferences.
-     * @return A List of BookInfo objects representing the marked books.
-     */
     private List<BookInfo> loadMarkedBooks() {
         SharedPreferences preferences = getSharedPreferences("MarkedBooksPrefs", MODE_PRIVATE);
         Gson gson = new Gson();
@@ -170,11 +196,6 @@ public class MarkedBooksActivity extends AppCompatActivity {
         return bookList;
     }
 
-    /**
-     * Sorts the list of marked books based on the selected option.
-     *
-     * @param position The index of the selected sorting option.
-     */
     private void sortBooks(int position) {
         switch (position) {
             case 0: // Latest Marked

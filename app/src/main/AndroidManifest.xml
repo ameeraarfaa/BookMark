@@ -43,6 +43,11 @@
             </intent-filter>
         </activity>
 
+        <receiver
+            android:name=".activities.RefreshReceiver"
+            android:exported="false" />
+
+
     </application>
 
 </manifest>
